@@ -1,34 +1,64 @@
 import streamlit as st
-import pandas as pd
-import matplotlib.pyplot as plt
+import cv2
+from streamlit_webrtc import webrtc_streamer
+from yt_dlp import YoutubeDL
+import tempfile
 
 class Project2:
     def __init__(self):
         pass
 
     def app(self):
-        st.title("Проект 2: Визуализация данных")
-        st.write("Загрузите CSV-файл, чтобы построить график.")
+        st.title("Проект 2: Работа с видео потоками")
 
-        # Форма для загрузки файла
-        uploaded_file = st.file_uploader("Выберите CSV-файл", type=["csv"])
+        # Выбор источника видео
+        video_source = st.selectbox(
+            "Выберите источник видео",
+            ["Мобильная камера", "YouTube ссылка", "Локальный файл", "Веб-камера", "RTSP поток"]
+        )
 
-        if uploaded_file is not None:
-            # Читаем загруженный файл
-            data = pd.read_csv(uploaded_file)
-            st.write("Вот первые несколько строк вашего файла:")
-            st.dataframe(data.head())
+        if video_source == "Мобильная камера":
+            img_file = st.camera_input("Сделайте фото")
+            if img_file:
+                st.image(img_file)
 
-            # Выбор колонок для графика
-            x_column = st.selectbox("Выберите колонку для оси X", data.columns)
-            y_column = st.selectbox("Выберите колонку для оси Y", data.columns)
+        elif video_source == "YouTube ссылка":
+            youtube_url = st.text_input("Введите URL YouTube видео:")
+            if youtube_url:
+                try:
+                    with YoutubeDL({"format": "best"}) as ydl:
+                        info = ydl.extract_info(youtube_url, download=False)
+                        video_url = info["url"]
+                        st.video(video_url)
+                except Exception as e:
+                    st.error(f"Не удалось загрузить видео: {e}")
 
-            if x_column and y_column:
-                # Построение графика
-                st.write(f"График зависимости {y_column} от {x_column}:")
-                fig, ax = plt.subplots()
-                ax.plot(data[x_column], data[y_column], marker='o')
-                ax.set_xlabel(x_column)
-                ax.set_ylabel(y_column)
-                ax.set_title(f"{y_column} vs {x_column}")
-                st.pyplot(fig)
+        elif video_source == "Локальный файл":
+            video_file = st.file_uploader("Загрузите видео файл", type=["mp4", "mov", "avi"])
+            if video_file:
+                with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+                    temp_file.write(video_file.read())
+                    st.video(temp_file.name)
+
+        elif video_source == "Веб-камера":
+            webrtc_streamer(key="example")
+
+        elif video_source == "RTSP поток":
+            rtsp_url = st.text_input("Введите RTSP ссылку:")
+            if rtsp_url:
+                cap = cv2.VideoCapture(rtsp_url)
+                frame_placeholder = st.empty()
+                stop = st.button("Остановить поток")
+
+                while not stop:
+                    ret, frame = cap.read()
+                    if not ret:
+                        st.error("Не удалось получить RTSP поток.")
+                        break
+                    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                    frame_placeholder.image(frame)
+
+                cap.release()
+
+        else:
+            st.warning("Выберите источник видео.")

@@ -7,25 +7,27 @@ class Project1:
 
     def app(self):
         st.title("Проект 1: Анализ данных")
-        st.write("Загрузите CSV-файл для анализа.")
+        st.write("На этой странице вы можете загрузить и исследовать данные.")
 
-        # Форма для загрузки файла
-        uploaded_file = st.file_uploader("Выберите CSV-файл", type=["csv"])
+        # Загрузка файла
+        uploaded_file = st.file_uploader("Загрузите CSV-файл", type=["csv"])
 
         if uploaded_file is not None:
-            # Читаем загруженный файл
+            # Чтение файла
             data = pd.read_csv(uploaded_file)
-
-            # Отображаем данные
-            st.write("Вот первые несколько строк вашего файла:")
+            st.write("Первые строки загруженного файла:")
             st.dataframe(data.head())
 
-            # Фильтр по колонке
+            # Фильтрация данных
             column = st.selectbox("Выберите колонку для фильтрации", data.columns)
             if column:
                 unique_values = data[column].unique()
-                selected_value = st.selectbox("Выберите значение для фильтрации", unique_values)
+                selected_values = st.multiselect(f"Выберите значения для фильтрации по {column}", unique_values)
+                
+                if selected_values:
+                    filtered_data = data[data[column].isin(selected_values)]
+                    st.write(f"Отфильтрованные данные по значениям: {selected_values}")
+                    st.dataframe(filtered_data)
 
-                filtered_data = data[data[column] == selected_value]
-                st.write(f"Фильтрованные данные по значению '{selected_value}':")
-                st.dataframe(filtered_data)
+        else:
+            st.warning("Пожалуйста, загрузите CSV-файл.")
