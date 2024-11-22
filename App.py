@@ -35,7 +35,7 @@ styles = {
     },
 
     "active": {
-        "background-color": "white",
+        "background-color": "lightgray",
         "color": "black",
         "font-weight": "normal",
         "padding": "14px",
