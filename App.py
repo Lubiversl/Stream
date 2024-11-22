@@ -37,9 +37,9 @@ st.markdown(
 logo_path = os.path.join("img", "game_army_pistol_sword_war_military_gift_weapon_gun_icon_262418.svg")
 
 if os.path.exists(logo_path):
-    st.sidebar.image(logo_path, caption="Логотип сайта", use_container_width=True)
+    st.sidebar.image(logo_path, caption="logo", use_container_width=True)
 else:
-    st.sidebar.error("Логотип не найден. Проверьте файл 'game_army_pistol_sword_war_military_gift_weapon_gun_icon_262418.svg'.")
+    st.sidebar.error("game_army_pistol_sword_war_military_gift_weapon_gun_icon_262418.svg")
 
 # Создаём верхнее меню с кнопками
 selected_page = st.session_state.get("selected_page", "Главная")
