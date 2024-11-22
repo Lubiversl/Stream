@@ -29,7 +29,7 @@ styles = {
     },
     "span": {
         "display": "block",
-        "color": "white",
+        "color": "black",
         "padding": "0.2rem 0.725rem",
         "font-size": "14px"
     },
